@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerControllerX : MonoBehaviour
@@ -7,25 +8,30 @@ public class PlayerControllerX : MonoBehaviour
     public bool gameOver;
 
     public float floatForce;
-    private float gravityModifier = 1.5f;
+    public float gravityModifier = 1.5f;
     private Rigidbody playerRb;
-
+  
     public ParticleSystem explosionParticle;
     public ParticleSystem fireworksParticle;
-
     private AudioSource playerAudio;
     public AudioClip moneySound;
     public AudioClip explodeSound;
+    public AudioClip boingSound;
 
+    public float lowEnoughNo = 6;
+
+    public GameObject background;
+    private BoxCollider backgroundColldier;
 
     // Start is called before the first frame update
     void Start()
     {
         Physics.gravity *= gravityModifier;
         playerAudio = GetComponent<AudioSource>();
-
+        playerRb = GetComponent<Rigidbody>();
         // Apply a small upward force at the start of the game
         playerRb.AddForce(Vector3.up * 5, ForceMode.Impulse);
+        backgroundColldier = background.GetComponent<BoxCollider>();
 
     }
 
@@ -33,10 +39,14 @@ public class PlayerControllerX : MonoBehaviour
     void Update()
     {
         // While space is pressed and player is low enough, float up
-        if (Input.GetKey(KeyCode.Space) && !gameOver)
+        if(transform.position.y <= backgroundColldier.size.y - lowEnoughNo)
         {
-            playerRb.AddForce(Vector3.up * floatForce);
+            if (Input.GetKey(KeyCode.Space) && !gameOver)
+            {
+                playerRb.AddForce(Vector3.up * floatForce, ForceMode.Impulse);
+            }          
         }
+              
     }
 
     private void OnCollisionEnter(Collision other)
@@ -49,6 +59,7 @@ public class PlayerControllerX : MonoBehaviour
             gameOver = true;
             Debug.Log("Game Over!");
             Destroy(other.gameObject);
+            
         } 
 
         // if player collides with money, fireworks
@@ -59,7 +70,16 @@ public class PlayerControllerX : MonoBehaviour
             Destroy(other.gameObject);
 
         }
+        else if (other.gameObject.CompareTag("Ground") && !gameOver)
+        {
+            
+            playerAudio.PlayOneShot(boingSound);
+            playerRb.AddForce(Vector3.up * 15, ForceMode.Impulse);
+            
+
+        }
 
     }
+ 
 
 }
