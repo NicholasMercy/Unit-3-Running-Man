@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class moveLeft : MonoBehaviour
 {
-    private float speed = 30f;
+    private float intialSpeed = 30f;
+    private float speed;
+    private float doubleSpeed = 60f;
     private PlayerController playerControllerScript;
     private float leftBound = -10;
 
@@ -12,11 +14,21 @@ public class moveLeft : MonoBehaviour
     void Start()
     {
         playerControllerScript = GameObject.Find("Player").GetComponent<PlayerController>();
+        speed = intialSpeed; 
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (playerControllerScript.fastMode == true)
+        {
+            speed = doubleSpeed;
+        }
+        else if (playerControllerScript.fastMode == false)
+        {
+            speed = intialSpeed;
+        }
+
         if (playerControllerScript.gameOver == false)
         {
             transform.Translate(Vector3.left * speed * Time.deltaTime);
@@ -25,6 +37,8 @@ public class moveLeft : MonoBehaviour
         {
             Destroy(gameObject);
         }
+
+        
         
     }
 }
